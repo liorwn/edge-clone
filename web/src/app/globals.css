@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-bg: #0a0a0f;
+  --color-bg-card: #12121a;
+  --color-bg-input: #1a1a24;
+  --color-border: #2a2a3a;
+  --color-border-focus: #3ceba0;
+  --color-text: #f0f0f5;
+  --color-text-muted: #8888a0;
+  --color-accent: #3ceba0;
+  --color-accent-hover: #2fd490;
+  --color-accent-dim: rgba(60, 235, 160, 0.1);
+  --color-error: #f04040;
+  --color-warning: #f0a030;
+  --color-success: #3ceba0;
+  --color-improvement: #3ceba0;
+  --color-regression: #f04040;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Code", "Fira Code", monospace;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+/* Pulse animation for progress */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
