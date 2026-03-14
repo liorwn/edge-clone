@@ -241,24 +241,59 @@ export default function JobPage({ params }: { params: Promise<{ id: string }> })
               <ComparisonTable metrics={job.result.metrics} />
             )}
 
+            {/* Live Preview */}
+            {job.result.outputPath && (
+              <div className="rounded-lg border border-accent/30 bg-accent-dim p-6">
+                <h3 className="text-sm font-semibold text-accent uppercase tracking-wider mb-3">
+                  Live Preview
+                </h3>
+                <p className="text-text-muted text-sm mb-4">
+                  Your optimized page is live. Share this URL or test it on PageSpeed Insights.
+                </p>
+                <div className="flex items-center gap-2 bg-bg rounded-lg px-4 py-3 font-mono text-sm text-text mb-4 border border-border">
+                  <span className="flex-1 truncate">andale.sh/preview/{id}</span>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`https://andale.sh/preview/${id}`);
+                    }}
+                    className="text-text-muted hover:text-accent transition-colors shrink-0"
+                    title="Copy URL"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="flex gap-3">
+                  <a
+                    href={`/preview/${id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-bg transition-colors hover:bg-accent-hover"
+                  >
+                    Open Preview
+                  </a>
+                  <a
+                    href={`https://pagespeed.web.dev/analysis?url=${encodeURIComponent(`https://andale.sh/preview/${id}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-lg border border-accent/40 px-6 py-3 text-sm font-semibold text-accent transition-colors hover:bg-accent-dim"
+                  >
+                    Test on PageSpeed Insights
+                  </a>
+                </div>
+              </div>
+            )}
+
             {/* Actions */}
             <div className="flex gap-3">
               {job.result.outputPath && (
                 <a
-                  href={`/api/clone/${id}/result`}
-                  className="rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-bg transition-colors hover:bg-accent-hover"
-                >
-                  Download Clone
-                </a>
-              )}
-              {job.result.deployUrl && (
-                <a
-                  href={job.result.deployUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={`/api/clone/${id}/download`}
                   className="rounded-lg border border-border px-6 py-3 text-sm font-medium text-text transition-colors hover:bg-bg-card"
                 >
-                  View Deployed Page
+                  Download HTML
                 </a>
               )}
               <Link
