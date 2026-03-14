@@ -134,6 +134,7 @@ The key insight: marketing pages are slow because tracking scripts block paint. 
 - [ ] Usage-based pricing
 
 ### Future Optimizations
+- [ ] LQIP blur-up placeholders (base64 blurred thumbnail as background-image while real image loads — instant LCP)
 - [ ] AVIF image conversion (next-gen after WebP)
 - [ ] Critical CSS extraction (above-fold inline, rest deferred)
 - [ ] Unused CSS removal (PurgeCSS)
