@@ -10,8 +10,8 @@ const nextConfig: NextConfig = {
     "chrome-launcher",
     "single-file-cli",
   ],
-  // Output standalone for Docker
-  output: "standalone",
+  // Note: not using standalone mode — running `next start` directly in Docker
+  // so the core /app/dist/ is accessible via resolve("/app", "dist", ...)
 };
 
 export default nextConfig;

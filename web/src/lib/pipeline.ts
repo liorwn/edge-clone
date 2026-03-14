@@ -10,21 +10,29 @@ import { updateJob } from "./jobs";
  * At runtime (in Docker or local dev), the core library lives at ../../src/ or ../../dist/.
  */
 function loadCoreModule(moduleName: string) {
+  // Search multiple possible locations for the compiled core library:
+  // - Local dev: ../dist/ relative to web/
+  // - Docker standalone: various paths depending on copy strategy
+  // - Docker /app root: where Dockerfile builds core
+  const cwd = process.cwd();
   const searchPaths = [
-    resolve(process.cwd(), "..", "dist", `${moduleName}.js`),
-    resolve("/app", "dist", `${moduleName}.js`),
+    resolve(cwd, "..", "dist", `${moduleName}.js`),           // local dev (web/ -> ../dist/)
+    resolve(cwd, "..", "..", "dist", `${moduleName}.js`),      // standalone (web/.next/standalone/web -> ../../dist/)
+    resolve("/app", "dist", `${moduleName}.js`),               // Docker /app/dist/
+    resolve("/app", "web", ".next", "standalone", "dist", `${moduleName}.js`), // Docker standalone copy
+    resolve(cwd, "dist", `${moduleName}.js`),                  // dist in cwd
   ];
 
   for (const p of searchPaths) {
     if (existsSync(p)) {
-      const req = createRequire(p);
+      const req = createRequire(import.meta.url);
       return req(p);
     }
   }
 
   throw new Error(
     `Could not find andale core module "${moduleName}". Searched: ${searchPaths.join(", ")}. ` +
-    `Make sure to run "npm run build" in the andale root directory first.`
+    `Make sure to run "npm run build" in the andale root directory first. CWD: ${cwd}`
   );
 }
 
