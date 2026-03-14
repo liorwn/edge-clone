@@ -2,7 +2,7 @@ import { deferTracking, stripTracking } from './transform/defer-tracking.js'
 import { extractAndOptimizeImages } from './transform/optimize-images.js'
 import { injectFontPreloads } from './transform/preload-fonts.js'
 import { injectPrefill } from './transform/inject-prefill.js'
-import type { TransformResult, ExtractedAsset, TransformStats } from './types.js'
+import type { TransformResult, ExtractedAsset, TransformStats, ChangeLogEntry } from './types.js'
 
 export interface TransformOptions {
   deferTracking: boolean
@@ -22,6 +22,7 @@ export async function transform(
   let trackingStripped = 0
   let vendors: string[] = []
   let assets: ExtractedAsset[] = []
+  const changelog: ChangeLogEntry[] = []
 
   // Stage 1: Handle tracking scripts
   if (options.stripTracking) {
@@ -29,11 +30,26 @@ export async function transform(
     current = result.html
     trackingStripped = result.strippedCount
     vendors = result.vendors
+    for (const v of result.vendors) {
+      changelog.push({ type: 'stripped', category: 'tracking', description: `Removed ${v} tracking script` })
+    }
   } else if (options.deferTracking) {
     const result = deferTracking(current)
     current = result.html
     trackingDeferred = result.deferredCount
     vendors = result.vendors
+    for (const v of result.vendors) {
+      changelog.push({ type: 'deferred', category: 'tracking', description: `Deferred ${v} to post-interaction`, detail: 'Fires on first click/touch/mouse/key or after 15s' })
+    }
+    if (result.deferredCount > 0) {
+      changelog.push({ type: 'injected', category: 'tracking', description: 'Injected deferred tracking loader script' })
+    }
+  }
+
+  // OneTrust/consent banner removal is handled inside deferTracking/stripTracking
+  // but we log it explicitly if vendors were found
+  if (vendors.includes('onetrust')) {
+    changelog.push({ type: 'removed', category: 'consent', description: 'Removed OneTrust cookie consent banner HTML' })
   }
 
   // Stage 2: Extract and optimize images
@@ -41,15 +57,31 @@ export async function transform(
     const result = await extractAndOptimizeImages(current, outputDir)
     current = result.html
     assets = result.assets
+    for (const asset of result.assets) {
+      if (asset.type === 'image') {
+        const saved = asset.originalSize - asset.optimizedSize
+        const pct = asset.originalSize > 0 ? Math.round((saved / asset.originalSize) * 100) : 0
+        changelog.push({
+          type: 'optimized',
+          category: 'image',
+          description: `Extracted and converted to ${asset.format.toUpperCase()}`,
+          detail: `${Math.round(asset.originalSize / 1024)}KB → ${Math.round(asset.optimizedSize / 1024)}KB (${pct}% smaller) → ${asset.localPath}`
+        })
+      }
+    }
   }
 
   // Stage 3: Inject font preloads
   const fontResult = injectFontPreloads(current)
   current = fontResult.html
+  if (fontResult.fontsPreloaded > 0) {
+    changelog.push({ type: 'preloaded', category: 'font', description: `Added preload hints for ${fontResult.fontsPreloaded} WOFF2 font(s)`, detail: 'Eliminates font-loading flash (FOIT/FOUT)' })
+  }
 
   // Stage 4: Inject URL param prefill
   if (options.prefill) {
     current = injectPrefill(current)
+    changelog.push({ type: 'injected', category: 'prefill', description: 'Injected URL parameter prefill script', detail: 'Supports ?email=&fname=&lname=&phone= for form pre-population' })
   }
 
   const finalSize = Buffer.byteLength(current, 'utf-8')
@@ -63,8 +95,8 @@ export async function transform(
     originalHtmlSize: originalSize,
     finalHtmlSize: finalSize,
     totalAssetSize,
-    estimatedLoadTimeMs: Math.round((finalSize + totalAssetSize) / 1000 * 8), // rough: 1MB/s on 3G
+    estimatedLoadTimeMs: Math.round((finalSize + totalAssetSize) / 1000 * 8),
   }
 
-  return { html: current, assets, stats }
+  return { html: current, assets, stats, changelog }
 }

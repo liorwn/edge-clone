@@ -29,6 +29,13 @@ interface MetricDelta {
   si: number;
 }
 
+interface ChangeLogEntry {
+  type: string;
+  category: string;
+  description: string;
+  detail?: string;
+}
+
 interface JobResult {
   metrics?: {
     original: LighthouseMetrics;
@@ -44,6 +51,7 @@ interface JobResult {
     finalHtmlSize: number;
     totalAssetSize: number;
   };
+  changelog?: ChangeLogEntry[];
   outputPath?: string;
   deployUrl?: string;
 }
@@ -235,6 +243,11 @@ export default function JobPage({ params }: { params: Promise<{ id: string }> })
           <div className="flex flex-col gap-8">
             {/* Transform Stats */}
             {job.result.stats && <TransformStats stats={job.result.stats} />}
+
+            {/* Changelog — what was modified */}
+            {job.result.changelog && job.result.changelog.length > 0 && (
+              <ChangeLog entries={job.result.changelog} />
+            )}
 
             {/* Lighthouse Comparison */}
             {job.result.metrics && (
@@ -475,6 +488,60 @@ function ComparisonTable({
           })}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+const CHANGE_ICONS: Record<string, string> = {
+  deferred: "⏸",
+  stripped: "🗑",
+  optimized: "🖼",
+  preloaded: "⚡",
+  injected: "💉",
+  removed: "✂️",
+};
+
+const CATEGORY_COLORS: Record<string, string> = {
+  tracking: "text-yellow-400",
+  image: "text-blue-400",
+  font: "text-purple-400",
+  prefill: "text-cyan-400",
+  consent: "text-orange-400",
+};
+
+function ChangeLog({ entries }: { entries: ChangeLogEntry[] }) {
+  return (
+    <div className="rounded-lg border border-border bg-bg-card">
+      <div className="px-6 py-4 border-b border-border">
+        <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
+          Changes Made
+        </h3>
+        <p className="text-xs text-text-muted/60 mt-1">
+          Every modification Andale made to the page
+        </p>
+      </div>
+      <div className="divide-y divide-border/50">
+        {entries.map((entry, i) => (
+          <div key={i} className="px-6 py-3 flex items-start gap-3">
+            <span className="text-base shrink-0 mt-0.5" title={entry.type}>
+              {CHANGE_ICONS[entry.type] || "•"}
+            </span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className={`text-[10px] font-bold uppercase tracking-wider ${CATEGORY_COLORS[entry.category] || "text-text-muted"}`}>
+                  {entry.category}
+                </span>
+                <span className="text-sm text-text">{entry.description}</span>
+              </div>
+              {entry.detail && (
+                <p className="text-xs text-text-muted/60 mt-0.5 font-mono">
+                  {entry.detail}
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

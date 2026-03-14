@@ -24,6 +24,13 @@ export interface MetricDelta {
   si: number;
 }
 
+export interface ChangeLogEntry {
+  type: string;
+  category: string;
+  description: string;
+  detail?: string;
+}
+
 export interface JobResult {
   metrics?: {
     original: LighthouseMetrics;
@@ -39,6 +46,7 @@ export interface JobResult {
     finalHtmlSize: number;
     totalAssetSize: number;
   };
+  changelog?: ChangeLogEntry[];
   outputPath?: string;
   deployUrl?: string;
 }

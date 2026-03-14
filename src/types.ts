@@ -19,10 +19,18 @@ export interface CaptureResult {
   captureTimeMs: number
 }
 
+export interface ChangeLogEntry {
+  type: 'deferred' | 'stripped' | 'optimized' | 'preloaded' | 'injected' | 'removed'
+  category: 'tracking' | 'image' | 'font' | 'prefill' | 'consent'
+  description: string
+  detail?: string
+}
+
 export interface TransformResult {
   html: string
   assets: ExtractedAsset[]
   stats: TransformStats
+  changelog: ChangeLogEntry[]
 }
 
 export interface ExtractedAsset {

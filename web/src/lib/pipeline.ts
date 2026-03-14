@@ -96,6 +96,9 @@ export async function runPipeline(
       message: `Optimized: ${transformResult.stats.trackingScriptsDeferred} scripts deferred, ${transformResult.stats.imagesOptimized} images optimized`,
     });
 
+    // Capture changelog for the result
+    const changelog = transformResult.changelog || [];
+
     // --- Stage 3: Lighthouse ---
     updateJob(jobId, {
       status: "lighthouse",
@@ -129,6 +132,7 @@ export async function runPipeline(
             totalAssetSize: transformResult.stats.totalAssetSize,
           },
           outputPath: outputDir,
+          changelog,
         },
       });
       return;
@@ -173,6 +177,7 @@ export async function runPipeline(
           totalAssetSize: transformResult.stats.totalAssetSize,
         },
         outputPath: outputDir,
+        changelog,
       },
     });
   } catch (err: unknown) {
