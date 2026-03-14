@@ -1,0 +1,36 @@
+[INFO] 2026-03-14T18:44:43Z Hook script invoked
+[INFO] 2026-03-14T18:44:43Z PLUGIN_ROOT=/Users/Lior/.claude/plugins/cache/a5c-ai/babysitter/4.0.143
+[INFO] 2026-03-14T18:44:43Z Hook input received (    1592 bytes)
+[INFO] 2026-03-14T18:44:43.395Z handleHookRunStop started
+[INFO] 2026-03-14T18:44:43.400Z Hook input received
+[INFO] 2026-03-14T18:44:43.400Z [session=a0fdcf22-ea42-4969-844a-f81ae04ab70a] Session ID: a0fdcf22-ea42-4969-844a-f81ae04ab70a
+[INFO] 2026-03-14T18:44:43.400Z [session=a0fdcf22-ea42-4969-844a-f81ae04ab70a] Resolved pluginRoot: /Users/Lior/.claude/plugins/cache/a5c-ai/babysitter/4.0.143
+[INFO] 2026-03-14T18:44:43.400Z [session=a0fdcf22-ea42-4969-844a-f81ae04ab70a] Resolved stateDir: /Users/Lior/.claude/plugins/cache/a5c-ai/babysitter/4.0.143/skills/babysit/state
+[INFO] 2026-03-14T18:44:43.400Z [session=a0fdcf22-ea42-4969-844a-f81ae04ab70a] Checking session file at: /Users/Lior/.claude/plugins/cache/a5c-ai/babysitter/4.0.143/skills/babysit/state/a0fdcf22-ea42-4969-844a-f81ae04ab70a.md
+[INFO] 2026-03-14T18:44:43.400Z [session=a0fdcf22-ea42-4969-844a-f81ae04ab70a] Primary state file not found, trying fallback: /Users/Lior/dev/edge-clone/.a5c/state/a0fdcf22-ea42-4969-844a-f81ae04ab70a.md
+[INFO] 2026-03-14T18:44:43.401Z [session=a0fdcf22-ea42-4969-844a-f81ae04ab70a] No active loop found at primary (/Users/Lior/.claude/plugins/cache/a5c-ai/babysitter/4.0.143/skills/babysit/state/a0fdcf22-ea42-4969-844a-f81ae04ab70a.md) or fallback (/Users/Lior/dev/edge-clone/.a5c/state/a0fdcf22-ea42-4969-844a-f81ae04ab70a.md) — allowing exit
+[INFO] 2026-03-14T18:44:43Z CLI exit code=0
+[INFO] 2026-03-14T18:46:51Z Hook script invoked
+[INFO] 2026-03-14T18:46:51Z PLUGIN_ROOT=/Users/Lior/.claude/plugins/cache/a5c-ai/babysitter/4.0.143
+[INFO] 2026-03-14T18:46:51Z Hook input received (    1041 bytes)
+[INFO] 2026-03-14T18:46:51.657Z handleHookRunStop started
+[INFO] 2026-03-14T18:46:51.663Z Hook input received
+[INFO] 2026-03-14T18:46:51.663Z [session=a0fdcf22-ea42-4969-844a-f81ae04ab70a] Session ID: a0fdcf22-ea42-4969-844a-f81ae04ab70a
+[INFO] 2026-03-14T18:46:51.663Z [session=a0fdcf22-ea42-4969-844a-f81ae04ab70a] Resolved pluginRoot: /Users/Lior/.claude/plugins/cache/a5c-ai/babysitter/4.0.143
+[INFO] 2026-03-14T18:46:51.663Z [session=a0fdcf22-ea42-4969-844a-f81ae04ab70a] Resolved stateDir: /Users/Lior/.claude/plugins/cache/a5c-ai/babysitter/4.0.143/skills/babysit/state
+[INFO] 2026-03-14T18:46:51.663Z [session=a0fdcf22-ea42-4969-844a-f81ae04ab70a] Checking session file at: /Users/Lior/.claude/plugins/cache/a5c-ai/babysitter/4.0.143/skills/babysit/state/a0fdcf22-ea42-4969-844a-f81ae04ab70a.md
+[INFO] 2026-03-14T18:46:51.663Z [session=a0fdcf22-ea42-4969-844a-f81ae04ab70a] Primary state file not found, trying fallback: /Users/Lior/dev/edge-clone/.a5c/state/a0fdcf22-ea42-4969-844a-f81ae04ab70a.md
+[INFO] 2026-03-14T18:46:51.664Z [session=a0fdcf22-ea42-4969-844a-f81ae04ab70a] No active loop found at primary (/Users/Lior/.claude/plugins/cache/a5c-ai/babysitter/4.0.143/skills/babysit/state/a0fdcf22-ea42-4969-844a-f81ae04ab70a.md) or fallback (/Users/Lior/dev/edge-clone/.a5c/state/a0fdcf22-ea42-4969-844a-f81ae04ab70a.md) — allowing exit
+[INFO] 2026-03-14T18:46:51Z CLI exit code=0
+[INFO] 2026-03-14T18:55:15Z Hook script invoked
+[INFO] 2026-03-14T18:55:15Z PLUGIN_ROOT=/Users/Lior/.claude/plugins/cache/a5c-ai/babysitter/4.0.143
+[INFO] 2026-03-14T18:55:15Z Hook input received (     812 bytes)
+[INFO] 2026-03-14T18:55:16.045Z handleHookRunStop started
+[INFO] 2026-03-14T18:55:16.050Z Hook input received
+[INFO] 2026-03-14T18:55:16.051Z [session=a0fdcf22-ea42-4969-844a-f81ae04ab70a] Session ID: a0fdcf22-ea42-4969-844a-f81ae04ab70a
+[INFO] 2026-03-14T18:55:16.051Z [session=a0fdcf22-ea42-4969-844a-f81ae04ab70a] Resolved pluginRoot: /Users/Lior/.claude/plugins/cache/a5c-ai/babysitter/4.0.143
+[INFO] 2026-03-14T18:55:16.051Z [session=a0fdcf22-ea42-4969-844a-f81ae04ab70a] Resolved stateDir: /Users/Lior/.claude/plugins/cache/a5c-ai/babysitter/4.0.143/skills/babysit/state
+[INFO] 2026-03-14T18:55:16.051Z [session=a0fdcf22-ea42-4969-844a-f81ae04ab70a] Checking session file at: /Users/Lior/.claude/plugins/cache/a5c-ai/babysitter/4.0.143/skills/babysit/state/a0fdcf22-ea42-4969-844a-f81ae04ab70a.md
+[INFO] 2026-03-14T18:55:16.051Z [session=a0fdcf22-ea42-4969-844a-f81ae04ab70a] Primary state file not found, trying fallback: /Users/Lior/edge-clone/.a5c/state/a0fdcf22-ea42-4969-844a-f81ae04ab70a.md
+[INFO] 2026-03-14T18:55:16.051Z [session=a0fdcf22-ea42-4969-844a-f81ae04ab70a] No active loop found at primary (/Users/Lior/.claude/plugins/cache/a5c-ai/babysitter/4.0.143/skills/babysit/state/a0fdcf22-ea42-4969-844a-f81ae04ab70a.md) or fallback (/Users/Lior/edge-clone/.a5c/state/a0fdcf22-ea42-4969-844a-f81ae04ab70a.md) — allowing exit
+[INFO] 2026-03-14T18:55:16Z CLI exit code=0
