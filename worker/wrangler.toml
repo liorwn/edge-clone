@@ -1,0 +1,33 @@
+name = "andale-worker"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Default environment vars (non-secret)
+[vars]
+CACHE_TTL_SECONDS = "3600"
+ANDALE_API_URL = "https://andale.sh"
+
+# Default R2 binding
+[[r2_buckets]]
+binding = "CACHE"
+bucket_name = "andale-cache"
+
+# ---------------------------------------------------------------------------
+# ctox.com environment
+# ---------------------------------------------------------------------------
+[env.ctox]
+name = "andale-ctox"
+
+[env.ctox.vars]
+CACHE_TTL_SECONDS = "3600"
+ANDALE_API_URL = "https://andale.sh"
+ORIGIN_URL = "https://ctox.com"
+
+[[env.ctox.r2_buckets]]
+binding = "CACHE"
+bucket_name = "andale-cache-ctox"
+
+[[env.ctox.routes]]
+pattern = "ctox.com/*"
+zone_name = "ctox.com"
