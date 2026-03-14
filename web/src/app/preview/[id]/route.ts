@@ -53,8 +53,14 @@ export async function GET(
 </div>
 <div style="height:37px;"></div>`;
 
+  // Inject noindex meta tag in <head>
+  const withNoIndex = html.replace(
+    /(<head[^>]*>)/i,
+    `$1\n<meta name="robots" content="noindex, nofollow">`
+  );
+
   // Inject banner after <body> tag
-  const injectedHtml = html.replace(
+  const injectedHtml = withNoIndex.replace(
     /(<body[^>]*>)/i,
     `$1${banner}`
   );
@@ -63,6 +69,7 @@ export async function GET(
     headers: {
       "Content-Type": "text/html; charset=utf-8",
       "Cache-Control": "public, max-age=3600",
+      "X-Robots-Tag": "noindex, nofollow",
     },
   });
 }

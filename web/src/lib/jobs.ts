@@ -112,3 +112,51 @@ export function subscribe(id: string, fn: (job: Job) => void): () => void {
     }
   };
 }
+
+// === CLEANUP ===
+
+const MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
+const CLEANUP_INTERVAL_MS = 60 * 60 * 1000; // check every hour
+
+/**
+ * Remove jobs older than 24 hours and delete their output directories.
+ */
+function cleanupExpiredJobs() {
+  const now = Date.now();
+  let cleaned = 0;
+
+  for (const [id, job] of jobs) {
+    const age = now - job.createdAt.getTime();
+    if (age > MAX_AGE_MS) {
+      // Delete output directory
+      if (job.result?.outputPath) {
+        try {
+          const { rmSync } = require("node:fs");
+          rmSync(job.result.outputPath, { recursive: true, force: true });
+        } catch {
+          // directory may already be gone
+        }
+      }
+
+      // Remove from maps
+      jobs.delete(id);
+      listeners.delete(id);
+      cleaned++;
+    }
+  }
+
+  if (cleaned > 0) {
+    console.log(`[andale] Cleanup: removed ${cleaned} expired jobs`);
+  }
+}
+
+// Start cleanup interval (runs in the Node.js process)
+if (typeof globalThis !== "undefined") {
+  // Avoid duplicate intervals on hot reload
+  const key = "__andale_cleanup_interval__";
+  const g = globalThis as Record<string, unknown>;
+  if (!g[key]) {
+    g[key] = setInterval(cleanupExpiredJobs, CLEANUP_INTERVAL_MS);
+    console.log("[andale] Cleanup scheduler started (24h TTL, hourly check)");
+  }
+}
