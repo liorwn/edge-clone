@@ -6,6 +6,7 @@ import chalk from 'chalk'
 import ora from 'ora'
 import { capture } from './capture.js'
 import { transform } from './transform.js'
+import { deploy } from './deploy.js'
 import type { EdgeCloneOptions } from './types.js'
 
 const program = new Command()
@@ -23,6 +24,8 @@ program
   .option('--no-optimize-images', 'Skip image optimization')
   .option('--viewport <WxH>', 'Browser viewport size', '1440x4000')
   .option('--chrome-path <path>', 'Path to Chrome/Chromium executable')
+  .option('--deploy <platform>', 'Deploy after clone (cloudflare, vercel)')
+  .option('--name <name>', 'Project name for deployment (auto-generated from URL if omitted)')
   .action(async (url: string, opts: Record<string, any>) => {
     const outputDir = resolve(opts.output)
     const [vw, vh] = (opts.viewport as string).split('x').map(Number)
@@ -96,6 +99,20 @@ program
     console.log()
     console.log(`  ${chalk.bold.green('✓')} ${chalk.bold(indexPath)}`)
     console.log(`  ${chalk.dim('Test prefill:')} ${chalk.cyan(url.split('?')[0] + '?email=test@example.com&fname=John&lname=Doe')}`)
+
+    // Step 4: Deploy (optional)
+    if (opts.deploy) {
+      const projectName = opts.name || new URL(url).pathname.replace(/\//g, '-').replace(/^-|-$/g, '') || 'andale-clone'
+      const deploySpinner = ora(`Deploying to ${opts.deploy}...`).start()
+      try {
+        const result = await deploy(outputDir, opts.deploy, projectName)
+        deploySpinner.succeed(`Deployed to ${chalk.bold(result.platform)}`)
+        console.log(`  ${chalk.bold.cyan(result.url)}`)
+      } catch (err: any) {
+        deploySpinner.fail(`Deploy failed: ${err.message}`)
+      }
+    }
+
     console.log()
   })
 
