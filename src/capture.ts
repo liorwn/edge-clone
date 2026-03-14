@@ -61,7 +61,16 @@ export async function capture(
 
   const start = Date.now()
 
-  execSync(`npx single-file-cli ${args.join(' ')}`, {
+  // Use globally installed single-file if available, fall back to npx
+  let singleFileCmd = 'npx single-file-cli'
+  try {
+    execSync('which single-file', { stdio: 'pipe' })
+    singleFileCmd = 'single-file'
+  } catch {
+    // npx fallback — works locally, may timeout on servers without global install
+  }
+
+  execSync(`${singleFileCmd} ${args.join(' ')}`, {
     stdio: 'pipe',
     timeout: 120_000, // 2 min max
   })
