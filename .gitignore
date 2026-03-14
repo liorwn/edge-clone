@@ -3,3 +3,5 @@ dist/
 *.tgz
 .DS_Store
 output/
+.a5c/
+.parry-guard.redb
