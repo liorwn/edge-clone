@@ -560,26 +560,8 @@ JS;
 	 * @return bool
 	 */
 	private function should_optimize() {
-		// Plugin-level kill switch.
-		if ( empty( $this->options['enabled'] ) ) {
-			return false;
-		}
-
-		// Server optimisation toggle.
-		if ( empty( $this->options['server_optimize'] ) ) {
-			return false;
-		}
-
-		// Never optimise admin pages.
-		if ( is_admin() ) {
-			return false;
-		}
-
-		// Never optimise AJAX / REST / CLI / Cron contexts.
+		// Skip AJAX / REST / CLI / Cron — never skip frontend.
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
-			return false;
-		}
-		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
 			return false;
 		}
 		if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
@@ -588,12 +570,6 @@ JS;
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			return false;
 		}
-
-		// Optionally skip logged-in users so admins see the real page.
-		if ( is_user_logged_in() && ! empty( $this->options['skip_logged_in'] ) ) {
-			return false;
-		}
-
 		return true;
 	}
 }
