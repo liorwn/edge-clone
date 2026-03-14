@@ -1,37 +1,33 @@
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
-import { createRequire } from "node:module";
 import { updateJob } from "./jobs";
 
 /**
- * Load a module from the andale core library at runtime.
- * Uses createRequire to avoid Turbopack static analysis of dynamic imports.
- * At runtime (in Docker or local dev), the core library lives at ../../src/ or ../../dist/.
+ * Load a module from the andale core library at RUNTIME.
+ *
+ * Uses eval('require') to completely hide the dynamic import from Turbopack's
+ * static analysis. Turbopack tries to resolve all require/createRequire paths
+ * at build time and fails on absolute paths like "/app/dist/capture.js".
+ * eval() is opaque to the bundler — it only runs at runtime on the server.
  */
 function loadCoreModule(moduleName: string) {
-  // Search multiple possible locations for the compiled core library:
-  // - Local dev: ../dist/ relative to web/
-  // - Docker standalone: various paths depending on copy strategy
-  // - Docker /app root: where Dockerfile builds core
   const cwd = process.cwd();
   const searchPaths = [
-    resolve(cwd, "..", "dist", `${moduleName}.js`),           // local dev (web/ -> ../dist/)
-    resolve(cwd, "..", "..", "dist", `${moduleName}.js`),      // standalone (web/.next/standalone/web -> ../../dist/)
-    resolve("/app", "dist", `${moduleName}.js`),               // Docker /app/dist/
-    resolve("/app", "web", ".next", "standalone", "dist", `${moduleName}.js`), // Docker standalone copy
-    resolve(cwd, "dist", `${moduleName}.js`),                  // dist in cwd
+    resolve(cwd, "..", "dist", `${moduleName}.js`),
+    resolve("/app", "dist", `${moduleName}.js`),
+    resolve(cwd, "dist", `${moduleName}.js`),
   ];
 
   console.log(`[andale] Loading core module "${moduleName}", CWD: ${cwd}`);
-  console.log(`[andale] Search paths:`, searchPaths);
 
   for (const p of searchPaths) {
     const found = existsSync(p);
     console.log(`[andale]   ${found ? '✓' : '✗'} ${p}`);
     if (found) {
-      const req = createRequire(import.meta.url);
-      return req(p);
+      // eval('require') hides this from Turbopack static analysis
+      // eslint-disable-next-line no-eval
+      return eval('require')(p);
     }
   }
 
