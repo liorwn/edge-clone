@@ -11,8 +11,8 @@ import type { EdgeCloneOptions } from './types.js'
 const program = new Command()
 
 program
-  .name('edge-clone')
-  .description('Clone any web page into a speed-optimized static site. Sub-1-second loads.')
+  .name('andale')
+  .description('Clone any web page into a speed-optimized static site. Sub-1-second loads. Andale!')
   .version('0.1.0')
   .argument('<url>', 'URL to clone')
   .option('-o, --output <dir>', 'Output directory', './output')
@@ -27,7 +27,7 @@ program
     const outputDir = resolve(opts.output)
     const [vw, vh] = (opts.viewport as string).split('x').map(Number)
 
-    console.log(chalk.bold('\n⚡ edge-clone\n'))
+    console.log(chalk.bold('\n🏃 andale!\n'))
     console.log(`  URL:    ${chalk.cyan(url)}`)
     console.log(`  Output: ${chalk.dim(outputDir)}`)
     console.log()

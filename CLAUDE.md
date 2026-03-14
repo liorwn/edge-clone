@@ -1,4 +1,4 @@
-# edge-clone — Page Speed Optimizer
+# Andale — Page Speed Optimizer
 
 Clone any web page into a speed-optimized static site. Pixel-perfect rendering, deferred tracking, sub-1-second loads.
 
@@ -28,8 +28,8 @@ npx tsx src/cli.ts https://example.com -o ./output --no-optimize-images
 
 ```bash
 npm run build          # TypeScript → dist/
-npm link               # Makes `edge-clone` available globally
-edge-clone <url>       # Use from anywhere
+npm link               # Makes `andale` available globally
+andale <url>       # Use from anywhere
 ```
 
 ## Test
@@ -79,7 +79,7 @@ tests/
 
 The key insight: marketing pages are slow because tracking scripts block paint. GTM alone adds 1-3 seconds of TBT.
 
-**edge-clone defers, doesn't strip.** Tracking is important for attribution. The deferred loader:
+**andale defers, doesn't strip.** Tracking is important for attribution. The deferred loader:
 1. Converts `<script src="gtm.js">` → `<script data-deferred-src="gtm.js" type="text/deferred-tracking">`
 2. Injects a loader that fires all deferred scripts on first real user interaction (click/touch/mouse/key) or after 15 seconds
 3. Result: 0ms TBT from tracking, all analytics still fire
@@ -101,18 +101,37 @@ The key insight: marketing pages are slow because tracking scripts block paint. 
 - Google Chrome or Chromium (for capture)
 - `npx single-file-cli` (auto-installed)
 
-## Roadmap (v0.2+)
+## Roadmap
 
+### v0.2 — CLI Polish
 - [ ] `--deploy cloudflare` — auto-deploy to CF Pages
 - [ ] `--deploy vercel` — auto-deploy to Vercel
-- [ ] `--report` — run Lighthouse, output PageSpeed score
+- [ ] `--report` — run Lighthouse, output PageSpeed score before/after
 - [ ] `--diff` — screenshot original vs clone side-by-side
 - [ ] README.md with benchmarks and demo GIF
-- [ ] npm publish as `edge-clone`
+- [ ] npm publish as `andale`
 - [ ] GitHub Actions CI
-- [ ] Config file support (`.edgeclonerc`)
+
+### v0.3 — Web App (andale.sh)
+- [ ] Web frontend — paste a URL, get optimized clone + PageSpeed report
+- [ ] Hosted output — each clone gets a subdomain (e.g., `yoursite.andale.sh`)
+- [ ] Before/after comparison — side-by-side screenshots + Lighthouse scores
+- [ ] Queue system — clone jobs processed async, webhook/email on completion
+- [ ] Dashboard — history of clones, scores, deploy status
+
+### v1.0 — SaaS
+- [ ] User accounts + API keys
+- [ ] Custom domains for cloned pages
+- [ ] Scheduled re-clones (keep clone in sync with source)
+- [ ] Team workspaces
+- [ ] Webhook notifications
+- [ ] Usage-based pricing
+
+### Future
+- [ ] Config file support (`.andalrc`)
 - [ ] Critical CSS extraction (inline above-fold only)
 - [ ] Multi-page support (clone entire site)
+- [ ] A/B testing — serve original vs clone, measure conversion difference
 
 ## Origin
 

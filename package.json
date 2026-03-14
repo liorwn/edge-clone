@@ -1,10 +1,10 @@
 {
-  "name": "edge-clone",
+  "name": "andale",
   "version": "0.1.0",
-  "description": "Clone any web page into a speed-optimized static site with deferred tracking. Sub-1-second loads.",
+  "description": "Clone any web page into a speed-optimized static site. Pixel-perfect rendering, deferred tracking, sub-1-second loads. \u00a1\u00c1ndale\\!",
   "type": "module",
   "bin": {
-    "edge-clone": "./dist/cli.js"
+    "andale": "./dist/cli.js"
   },
   "scripts": {
     "build": "tsc",
