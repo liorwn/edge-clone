@@ -21,13 +21,13 @@ export default function Home() {
         body: JSON.stringify({ url }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(data.error || "Failed to start optimization");
       }
 
-      const { jobId } = await res.json();
-      router.push(`/job/${jobId}`);
+      router.push(`/job/${data.jobId}`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong");
       setLoading(false);
