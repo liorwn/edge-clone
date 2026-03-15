@@ -624,6 +624,23 @@ JS;
 				continue;
 			}
 
+			// Skip render-critical scripts — jQuery, Bootstrap, theme JS
+			$critical_patterns = array(
+				'jquery.min.js', 'jquery.js', '/jquery/', 'jquery-migrate',
+				'bootstrap.min.js', 'bootstrap.js', 'modernizr',
+				'/themes/',    // theme scripts are typically render-critical
+				'main.js', 'app.js', 'vendor.js',
+				'wp-includes/js/jquery',
+			);
+			$skip = false;
+			foreach ( $critical_patterns as $p ) {
+				if ( stripos( $tag, $p ) !== false ) { $skip = true; break; }
+			}
+			if ( $skip ) {
+				$output .= $tag;
+				continue;
+			}
+
 			// Skip type=module
 			if ( preg_match( '/type\s*=\s*["\']module["\']/', $tag ) ) {
 				$output .= $tag;
