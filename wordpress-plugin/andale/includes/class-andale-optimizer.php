@@ -577,10 +577,15 @@ JS;
 				$after  = $matches[3];
 				$full   = $before . $after;
 
-				// Skip if already has async or defer
-				if ( preg_match( '/\b(async|defer)\b/i', $full ) ) {
+				// Skip async (still executes ASAP after download, can't delay)
+				// DO NOT skip defer — defer still parses at load time
+				// andale-deferred delays until user interaction = TBT 0ms
+				if ( preg_match( '/\basync\b/i', $full ) ) {
 					return $matches[0];
 				}
+				// Remove defer attr since we're converting to andale-deferred
+				$before = preg_replace( '/\bdefer\b/i', '', $before );
+				$after  = preg_replace( '/\bdefer\b/i', '', $after );
 				// Skip type=module
 				if ( preg_match( '/type\s*=\s*["\']module["\']/', $full ) ) {
 					return $matches[0];
