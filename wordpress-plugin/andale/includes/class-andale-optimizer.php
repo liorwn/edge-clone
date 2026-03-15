@@ -126,6 +126,12 @@ class Andale_Optimizer {
 			return $html;
 		}
 
+		// Increase PCRE limits for large HTML pages (WP pages can be 1-3MB)
+		$orig_backtrack = ini_get( 'pcre.backtrack_limit' );
+		$orig_recursion = ini_get( 'pcre.recursion_limit' );
+		ini_set( 'pcre.backtrack_limit', 10000000 );
+		ini_set( 'pcre.recursion_limit', 10000 );
+
 		// Safety: only operate on full HTML documents.
 		if ( false === stripos( $html, '<html' ) ) {
 			return $html;
@@ -162,18 +168,27 @@ class Andale_Optimizer {
 				$html = $this->defer_tracking_scripts( $html );
 			}
 
-			// delay_all_scripts temporarily disabled — being rewritten
-			// if ( ! empty( $this->options['opt_delay_all_js'] ) ) {
-			// 	$html = $this->delay_all_scripts( $html );
-			// }
+			if ( ! empty( $this->options['opt_delay_all_js'] ) ) {
+				try {
+					$html = $this->delay_all_scripts( $html );
+				} catch ( \Throwable $e2 ) {
+					error_log( 'Andale delay_all_scripts error: ' . $e2->getMessage() );
+				}
+			}
 
 			// Inject resource hints for preloaded assets.
 			$html = $this->add_resource_hints( $html );
 
 		} catch ( \Throwable $e ) {
-			// Return original HTML unmodified on any error.
+			// Restore PCRE limits and return original HTML on error.
+			ini_set( 'pcre.backtrack_limit', $orig_backtrack );
+			ini_set( 'pcre.recursion_limit', $orig_recursion );
 			return $original;
 		}
+
+		// Restore PCRE limits
+		ini_set( 'pcre.backtrack_limit', $orig_backtrack );
+		ini_set( 'pcre.recursion_limit', $orig_recursion );
 
 		return $html;
 	}
