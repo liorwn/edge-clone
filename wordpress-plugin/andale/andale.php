@@ -45,6 +45,7 @@ function andale_get_settings() {
 		'opt_font_display'     => true,
 		'opt_preconnect'       => true,
 		'opt_defer_tracking'   => true,
+		'opt_critical_css'     => false,
 		'skip_logged_in'       => true,
 	);
 

@@ -150,6 +150,10 @@ class Andale_Optimizer {
 				$html = $this->add_font_display_swap( $html );
 			}
 
+			if ( ! empty( $this->options['opt_critical_css'] ) ) {
+				$html = $this->extract_critical_css( $html );
+			}
+
 			if ( ! empty( $this->options['opt_preconnect'] ) ) {
 				$html = $this->add_preconnect_hints( $html );
 			}
@@ -548,6 +552,195 @@ class Andale_Optimizer {
 </script>
 JS;
 		// phpcs:enable
+	}
+
+	// =========================================================================
+	// Critical CSS extraction
+	// =========================================================================
+
+	/**
+	 * Extract above-fold critical CSS, inline it, and defer everything else.
+	 *
+	 * Inline <style> blocks are split into critical (selectors that match
+	 * above-fold HTML) and deferred (the rest). Deferred CSS is loaded via a
+	 * small window.load listener. External render-blocking <link rel="stylesheet">
+	 * tags (after the first) are converted to the preload async pattern.
+	 *
+	 * @param  string $html HTML string.
+	 * @return string Modified HTML.
+	 */
+	private function extract_critical_css( $html ) {
+		if ( empty( $this->options['opt_critical_css'] ) ) {
+			return $html;
+		}
+
+		// Get above-fold HTML approximation (first 40% of body content).
+		$body_start = stripos( $html, '<body' );
+		$body_end   = strripos( $html, '</body>' );
+		if ( false === $body_start || false === $body_end ) {
+			return $html;
+		}
+		$body_html     = substr( $html, $body_start, $body_end - $body_start );
+		$fold_estimate = (int) ( strlen( $body_html ) * 0.4 );
+		$above_fold    = substr( $body_html, 0, $fold_estimate );
+
+		// Process each inline <style> block.
+		$html = preg_replace_callback(
+			'/<style([^>]*)>(.*?)<\/style>/is',
+			function ( $matches ) use ( $above_fold ) {
+				$attrs = $matches[1];
+				$css   = $matches[2];
+
+				// Skip tiny or non-display styles (e.g. type="text/template").
+				if ( strlen( trim( $css ) ) < 100 ) {
+					return $matches[0];
+				}
+				if ( false !== strpos( $attrs, 'text/template' ) ) {
+					return $matches[0];
+				}
+
+				$rules    = $this->parse_css_rules( $css );
+				$critical = array();
+				$deferred = array();
+
+				foreach ( $rules as $rule ) {
+					if ( '@rule' === $rule['selector'] ) {
+						// @font-face, @keyframes, @media — always critical.
+						$critical[] = $rule['full'];
+					} elseif ( $this->selector_matches_html( $rule['selector'], $above_fold ) ) {
+						$critical[] = $rule['full'];
+					} else {
+						$deferred[] = $rule['full'];
+					}
+				}
+
+				$output = '';
+				if ( ! empty( $critical ) ) {
+					$output .= '<style' . $attrs . '>' . implode( "\n", $critical ) . '</style>';
+				}
+				if ( ! empty( $deferred ) ) {
+					$deferred_css = addslashes( implode( "\n", $deferred ) );
+					$output      .= '<script>window.addEventListener("load",function(){var s=document.createElement("style");s.textContent="' . $deferred_css . '";document.head.appendChild(s);});</script>';
+				}
+
+				return $output ?: $matches[0];
+			},
+			$html
+		);
+
+		// Convert external render-blocking stylesheets to async preload.
+		// Skip the first one — it's likely the main theme CSS (critical).
+		$count = 0;
+		$html  = preg_replace_callback(
+			'/<link([^>]+)rel=["\']stylesheet["\']([^>]*)>/i',
+			function ( $m ) use ( &$count ) {
+				$count++;
+				// Keep first stylesheet synchronous (theme critical CSS).
+				if ( 1 === $count ) {
+					return $m[0];
+				}
+				// Extract href.
+				if ( ! preg_match( '/href=["\']([^"\']+)["\']/', $m[0], $href ) ) {
+					return $m[0];
+				}
+				$url = esc_attr( $href[1] );
+				return '<link rel="preload" href="' . $url . '" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">'
+					. '<noscript><link rel="stylesheet" href="' . $url . '"></noscript>';
+			},
+			$html
+		);
+
+		return $html;
+	}
+
+	/**
+	 * Parse a CSS string into an array of rule descriptors.
+	 *
+	 * Each descriptor has:
+	 *   'selector' — the selector string (or '@rule' for at-rules)
+	 *   'block'    — the block content including braces
+	 *   'full'     — the complete rule text
+	 *
+	 * @param  string $css Raw CSS.
+	 * @return array  Array of rule descriptors.
+	 */
+	private function parse_css_rules( $css ) {
+		$rules = array();
+
+		// Strip comments.
+		$css = preg_replace( '!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $css );
+
+		// Match at-rules with nested blocks (1 level deep: @media { ... { ... } }).
+		preg_match_all( '/@[^{]+\{[^}]*(?:\{[^}]*\}[^}]*)?\}/s', $css, $at_matches );
+		foreach ( $at_matches[0] as $rule ) {
+			$rules[] = array(
+				'selector' => '@rule',
+				'block'    => $rule,
+				'full'     => $rule,
+			);
+		}
+
+		// Remove matched at-rules to avoid double-processing.
+		$css_plain = preg_replace( '/@[^{]+\{[^}]*(?:\{[^}]*\}[^}]*)?\}/s', '', $css );
+
+		// Match regular rules: selector { properties }.
+		preg_match_all( '/([^{]+)\{([^}]*)\}/s', $css_plain, $matches, PREG_SET_ORDER );
+		foreach ( $matches as $m ) {
+			$selectors = explode( ',', trim( $m[1] ) );
+			foreach ( $selectors as $sel ) {
+				$sel     = trim( $sel );
+				$rules[] = array(
+					'selector' => $sel,
+					'block'    => '{' . $m[2] . '}',
+					'full'     => $sel . '{' . $m[2] . '}',
+				);
+			}
+		}
+
+		return $rules;
+	}
+
+	/**
+	 * Heuristic check: does this CSS selector likely match an element in the
+	 * given HTML fragment?
+	 *
+	 * Uses string-search heuristics — not a full CSS selector engine.
+	 * When in doubt, returns true (conservative: keep as critical).
+	 *
+	 * @param  string $selector     CSS selector.
+	 * @param  string $html_fragment Above-fold HTML.
+	 * @return bool
+	 */
+	private function selector_matches_html( $selector, $html_fragment ) {
+		$selector = trim( $selector );
+
+		if ( '' === $selector ) {
+			return true;
+		}
+
+		// Always keep at-rules, universal selector, :root, and CSS variables.
+		if ( '@' === $selector[0] || '*' === $selector || false !== strpos( $selector, ':root' ) ) {
+			return true;
+		}
+
+		// Simple element selector (e.g. 'h1', 'div', 'p').
+		if ( preg_match( '/^[a-z][a-z0-9]*$/i', $selector ) ) {
+			return false !== stripos( $html_fragment, '<' . $selector );
+		}
+
+		// Class selector (e.g. '.foo', '.bar-baz').
+		if ( preg_match( '/^\.([a-z0-9_-]+)/i', $selector, $m ) ) {
+			return false !== strpos( $html_fragment, 'class=' ) &&
+				false !== strpos( $html_fragment, $m[1] );
+		}
+
+		// ID selector (e.g. '#header').
+		if ( preg_match( '/^#([a-z0-9_-]+)/i', $selector, $m ) ) {
+			return false !== strpos( $html_fragment, 'id="' . $m[1] );
+		}
+
+		// Anything else (compound, pseudo-class, attribute) — keep as critical.
+		return true;
 	}
 
 	// =========================================================================

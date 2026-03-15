@@ -207,6 +207,7 @@ class Andale_Admin {
 					'opt_font_display'     => isset( $_POST['andale_opt_font_display'] ) ? true : false,
 					'opt_preconnect'       => isset( $_POST['andale_opt_preconnect'] ) ? true : false,
 					'opt_defer_tracking'   => isset( $_POST['andale_opt_defer_tracking'] ) ? true : false,
+					'opt_critical_css'     => isset( $_POST['andale_opt_critical_css'] ) ? true : false,
 					'skip_logged_in'       => isset( $_POST['andale_skip_logged_in'] ) ? true : false,
 				);
 
@@ -231,6 +232,7 @@ class Andale_Admin {
 		$opt_font_display      = isset( $this->settings['opt_font_display'] ) ? (bool) $this->settings['opt_font_display'] : true;
 		$opt_preconnect        = isset( $this->settings['opt_preconnect'] ) ? (bool) $this->settings['opt_preconnect'] : true;
 		$opt_defer_tracking    = isset( $this->settings['opt_defer_tracking'] ) ? (bool) $this->settings['opt_defer_tracking'] : true;
+		$opt_critical_css      = isset( $this->settings['opt_critical_css'] ) ? (bool) $this->settings['opt_critical_css'] : false;
 		$skip_logged_in        = isset( $this->settings['skip_logged_in'] ) ? (bool) $this->settings['skip_logged_in'] : true;
 
 		?>
@@ -478,6 +480,11 @@ class Andale_Admin {
 										<input type="checkbox" name="andale_opt_font_display" value="1" <?php checked( $opt_font_display, true ); ?> />
 										<?php esc_html_e( 'Add font-display: swap', 'andale' ); ?>
 										<span class="description"> &mdash; <?php esc_html_e( 'Prevents invisible text during font loading (FOIT).', 'andale' ); ?></span>
+									</label>
+									<label style="display:block;margin-bottom:8px;">
+										<input type="checkbox" name="andale_opt_critical_css" value="1" <?php checked( $opt_critical_css, true ); ?> />
+										<?php esc_html_e( 'Critical CSS extraction', 'andale' ); ?>
+										<span class="description"> &mdash; <?php esc_html_e( 'Inline above-fold CSS, defer the rest. Eliminates render-blocking stylesheets.', 'andale' ); ?></span>
 									</label>
 									<label style="display:block;margin-bottom:8px;">
 										<input type="checkbox" name="andale_opt_preconnect" value="1" <?php checked( $opt_preconnect, true ); ?> />
